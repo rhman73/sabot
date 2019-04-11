@@ -97,6 +97,7 @@ def webex_teams_webhook_events():
                 user_input = remove_prefix(user_input, 'beta ')
                 complete = tracking[2]
                 show_results = 0
+                show_list = 0
                 print("Existing user: ", user_ID)
                 if user_input == 'help':
                     #api.messages.create(room.id, markdown="Here are some commands you can give me:  \n**Help**: to show all valid commands  \n**Restart**: restart the questions from the beginning  \n**Results**: see the previous list of documents based on the last time you completed all questions  \n**List**: list all of the current design documents")
