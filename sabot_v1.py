@@ -64,7 +64,8 @@ def webex_teams_webhook_events():
             'Are there any integrations or non-standard elements which require billable PS? (Yes/No)',
             'Are there any on-site services? (Yes/No)',
             'Are you adding sites? (Yes/No)',
-            'Are you adding any new integrations or non-standard elements which require billable PS? (Yes/No)']
+            'Are you adding any new integrations or non-standard elements which require billable PS? (Yes/No)',
+            'Are there any on-site services? (Yes/No)']
         
         # Bot Loop Control
         me = api.people.me()
@@ -98,7 +99,11 @@ def webex_teams_webhook_events():
                 show_results = 0
                 print("Existing user: ", user_ID)
                 if user_input == 'help':
-                    api.messages.create(room.id, text="Here are some commands you can give me:\nHelp: to show all valid commands\nRestart: restart the questions from the beginning\nResults: see the previous list of documents based on the last time you completed all questions")
+                    #api.messages.create(room.id, markdown="Here are some commands you can give me:  \n**Help**: to show all valid commands  \n**Restart**: restart the questions from the beginning  \n**Results**: see the previous list of documents based on the last time you completed all questions  \n**List**: list all of the current design documents")
+                    api.messages.create(room.id, markdown="Here are some commands you can give me:  \n**Help**: to show all valid commands  \n**Restart**: restart the questions from the beginning  \n**Results**: see the previous list of documents based on the last time you completed all questions")
+                elif user_input == 'list':
+                    show_results = 1
+                    show_list = 1
                 elif current_time > time_out or user_input == 'restart':
                     tracking = [0,0,0]
                     user_history = [0,0,0,0,0,0,0]
@@ -117,21 +122,21 @@ Do you want to see that again? Then reply with "Results". Or reply with "Restart
                     current_answer = tracking[1]
                     if user_input == 'yes' or user_input == 'y':
                         user_history[current_answer] = 1
-                        if tracking[1] == 3 or tracking[1] == 5:
+                        if tracking[1] == 3 or tracking[1] == 6:
                             complete = 1
                             show_results = 1
                             tracking[2] = 1
                         else:
                             tracking[1] += 1
                     elif user_input == 'no' or user_input == 'n':
-                        if tracking[1] == 3 or tracking[1] == 5:
+                        if tracking[1] == 3 or tracking[1] == 6:
                             complete = 1
                             show_results = 1
                             tracking[2] = 1
                         else:
                             tracking[1] += 1
                     else:
-                        api.messages.create(room.id, text="I'm sorry I didn't understand that response. Please reply with Yes or No. You can also reply with HELP")
+                        api.messages.create(room.id, text="I'm sorry I didn't understand that response. Please reply with Yes or No. You can also reply with HELP. Here is the last question I asked you...")
                         next_question = tracking[0]
                         next_question_txt = questions[next_question]
                         api.messages.create(room.id, text=next_question_txt)
@@ -146,26 +151,29 @@ Do you want to see that again? Then reply with "Results". Or reply with "Restart
                         tracking[0] += 1 
                 if show_results == 1:
                     api.messages.create(room.id, text="Based on your answers, you need the following design documents: (Opening your browser and logging into CrowdAround will enable you to download the documents directly)")
-                    if user_history[0] == 0:
-                        api.messages.create(room.id, markdown="Legacy SDW version 17:03: [Link](https://crowdaround.verizon.com/servlet/JiveServlet/downloadBody/4286180-102-4-589448/UC-SDW%2017-03a%20final%20CUSTOMERNAME%20O-XXXXXXX-v1-mmdd17.xlsm)")
-                    else:
-                        api.messages.create(room.id, markdown="Latest SDW version 19.02: [Link](https://crowdaround.verizon.com/servlet/JiveServlet/downloadBody/4343835-102-4-647633/SDW%2019-02%20CUSTOMERNAME%20O-XXXXXXX-v1-mmdd19.xlsm)")
-                    if user_history[1] == 1:
+                    if user_history[1] == 1 or show_list == 1:
                         api.messages.create(room.id, markdown="Latest HLD version 2.01: [Link](https://crowdaround.verizon.com/servlet/JiveServlet/downloadBody/4338989-102-2-647636/HLD%20Customer%20O-xxxxxxx%20v1%20mmddyy.dotm)")
-                        api.messages.create(room.id, markdown="Latest SoR version 19.02: [Link](https://crowdaround.verizon.com/servlet/JiveServlet/downloadBody/4335312-102-5-647634/SOR%20Verizon%20UCCaaS%20PS%20MRC%20SOR%20v19_02.dotm)")
-                        if user_history[2] == 1:
-                            if user_history[0] == 1:
-                                api.messages.create(room.id, markdown="Latest SoW: [Link](https://crowdaround.verizon.com/servlet/JiveServlet/downloadBody/4279389-102-4-647703/SOW%20Customer%20Project%20O-xxxxxxx%20v1%20mmdd19.dotm)")
-                            else:
+                    if user_history[0] == 0 or show_list == 1:
+                        api.messages.create(room.id, markdown="Legacy SDW version 17:03: [Link](https://crowdaround.verizon.com/servlet/JiveServlet/downloadBody/4286180-102-4-589448/UC-SDW%2017-03a%20final%20CUSTOMERNAME%20O-XXXXXXX-v1-mmdd17.xlsm)")
+                    elif user_history[0] == 1 or show_list == 1:
+                        api.messages.create(room.id, markdown="Latest SDW version 19.03: [Link](https://crowdaround.verizon.com/servlet/JiveServlet/downloadBody/4353240-102-1-652158/SDW%2019-03%20CUSTOMERNAME%20O-XXXXXXX-v1-mmdd19.xlsm)")
+                    if user_history[1] == 1 or show_list == 1:
+                        api.messages.create(room.id, markdown="Latest SoR version 19.04: [Link](https://crowdaround.verizon.com/servlet/JiveServlet/downloadBody/4335312-102-6-653816/SOR%20Verizon%20UCCaaS%20PS%20MRC%20SOR%20v19_04.dotm)")
+                        if user_history[2] == 1 or show_list == 1:
+                            if user_history[0] == 1 or show_list == 1:
+                                api.messages.create(room.id, markdown="Latest SoW (Dated 4-10-19): [Link](https://crowdaround.verizon.com/servlet/JiveServlet/downloadBody/4279389-102-5-653818/SOW%20Customer%20Project%20O-xxxxxxx%20v1%20mmdd19.dotm)")
+                            elif user_history[0] == 0 or show_list == 1:
                                 api.messages.create(room.id, markdown="Legacy SoW: [Link](https://crowdaround.verizon.com/servlet/JiveServlet/downloadBody/4279390-102-2-422140/Legacy%20UCCaaS%20Only%20NRC%20Addendum%20SOW%20Template%20011316.doc)")
-                        if user_history[3] == 1:
-                            api.messages.create(room.id, markdown="Latest Site Services SoW: [Link](https:perc.vzbi.com)")
+                        if user_history[3] == 1 or show_list == 1:
+                            api.messages.create(room.id, markdown="Latest Site Services SoW: [Link](https://perc.vzbi.com)")
                     elif user_history[1] == 0:
-                        api.messages.create(room.id, markdown="Latest SoR version 19.02: [Link](https://crowdaround.verizon.com/servlet/JiveServlet/downloadBody/4335312-102-5-647634/SOR%20Verizon%20UCCaaS%20PS%20MRC%20SOR%20v19_02.dotm)")
+                        api.messages.create(room.id, markdown="Latest SoR version 19.04: [Link](https://crowdaround.verizon.com/servlet/JiveServlet/downloadBody/4335312-102-6-653816/SOR%20Verizon%20UCCaaS%20PS%20MRC%20SOR%20v19_04.dotm)")
                         if user_history[5] == 1 and user_history[0] == 0:
                             api.messages.create(room.id, markdown="Legacy SoW: [Link](https://crowdaround.verizon.com/servlet/JiveServlet/downloadBody/4279390-102-2-422140/Legacy%20UCCaaS%20Only%20NRC%20Addendum%20SOW%20Template%20011316.doc)")
                         elif user_history[5] == 1 and user_history[0] == 1:
-                            api.messages.create(room.id, markdown="Latest SoW: [Link](https://crowdaround.verizon.com/servlet/JiveServlet/downloadBody/4279389-102-4-647703/SOW%20Customer%20Project%20O-xxxxxxx%20v1%20mmdd19.dotm)")
+                            api.messages.create(room.id, markdown="Latest SoW (Dated 4-10-19): [Link](https://crowdaround.verizon.com/servlet/JiveServlet/downloadBody/4279389-102-5-653818/SOW%20Customer%20Project%20O-xxxxxxx%20v1%20mmdd19.dotm)")
+                        if user_history[6] == 1:
+                            api.messages.create(room.id, markdown="Latest Site Services SoW: [Link](https://perc.vzbi.com)")
 
                 list_update = 1
                 
