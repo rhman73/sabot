@@ -180,7 +180,7 @@ Do you want to see that again? Then reply with "Results". Or reply with "Restart
                 
             else:
                 print("This is a new user")
-                api.messages.create(room.id, text="Hi " + first_name + "! I am the UCCaaS SA Bot. I can help you figure out which UCCaaS design documents for your project. Please answer the following questions:")
+                api.messages.create(room.id, text="Hi " + first_name + "! I am the UCCaaS SA Bot. I can help you figure out which UCCaaS design documents you need for your project. Please answer the following questions:")
                 history[message.personId] = { "last_conv": current_time,
                      "tracking": [0,0,0],
                      "answers": [0,0,0,0,0,0,0,0,0]}
@@ -211,4 +211,4 @@ def remove_prefix(text, prefix):
 
 if __name__ == '__main__':
     # Start the Flask web server
-    flask_app.run(host='127.0.0.1', port=5000)
+    flask_app.run(host='127.0.0.1', port=5001)
